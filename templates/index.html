@@ -2,15 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Портфолио</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <h1>Мои Репозитории</h1>
-    
-    <!-- Форма для добавления нового репозитория -->
+
+    <!-- Форма добавления -->
     <h2>Добавить новый репозиторий</h2>
-    <form action="/add_repositories" method="POST">
+    <form id="add-repository-form">
         <label for="title">Название репозитория:</label><br>
         <input type="text" id="title" name="title" required><br><br>
 
@@ -20,11 +20,15 @@
         <button type="submit">Добавить</button>
     </form>
 
+    <!-- Кнопка очистки -->
+    <br>
+    <button id="clear-button">Очистить все</button>
+
     <hr>
 
-    <!-- Список всех репозиториев -->
+    <!-- Список репозиториев -->
     <h2>Список репозиториев</h2>
-    <ul>
+    <ul id="repositories-list">
         {% for repo in products_list %}
             <li>
                 <strong>{{ repo.title }}</strong> - 
@@ -33,5 +37,47 @@
         {% endfor %}
     </ul>
 
+    <script>
+        // Добавление репозитория через AJAX
+        $('#add-repository-form').submit(function(e) {
+            e.preventDefault();
+
+            var title = $('#title').val();
+            var link = $('#link').val();
+
+            $.ajax({
+                url: '/add_repositories',
+                method: 'POST',
+                data: {
+                    title: title,
+                    link: link
+                },
+                success: function(response) {
+                    $('#repositories-list').append('<li><strong>' + title + '</strong> - <a href="' + link + '" target="_blank">' + link + '</a></li>');
+                    $('#title').val('');
+                    $('#link').val('');
+                },
+                error: function() {
+                    alert('Ошибка при добавлении.');
+                }
+            });
+        });
+
+        // Очистка всех репозиториев через AJAX
+        $('#clear-button').click(function() {
+            if (confirm("Вы точно хотите удалить все записи?")) {
+                $.ajax({
+                    url: '/clear_repositories',
+                    method: 'POST',
+                    success: function(response) {
+                        $('#repositories-list').empty();
+                    },
+                    error: function() {
+                        alert('Ошибка при очистке.');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
