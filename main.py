@@ -31,6 +31,15 @@ def add_repositories():
         return 'Репозиторий добавлен!'
     return 'Ошибка при добавлении репозитория.'
 
+@app.route('/clear_repositories', methods=['POST'])
+def clear_repositories():
+    try:
+        num_rows_deleted = db.session.query(Repositories).delete()
+        db.session.commit()
+        return f'{num_rows_deleted} записей удалено.'
+    except Exception as e:
+        db.session.rollback()
+        return f'Ошибка: {str(e)}', 500
 
 
 
